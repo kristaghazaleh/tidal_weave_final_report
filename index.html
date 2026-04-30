@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CS 184 final report for Tidal Weave: a real-time ocean surface simulation and rendering project." />
+  <title>Tidal Weave — Final Report</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="course-line">CS 184 / 284A FINAL PROJECT REPORT</div>
+      <h1 class="title">Tidal Weave: Real-Time Spectral Ocean Surface Simulation and Rendering</h1>
+
+      <div class="group-list">
+        <div>Ellie Ghazaleh — 3035111314 — kristaghazaleh@berkeley.edu</div>
+        <div>Johanna Liu — 3038050576 — johanna.liu@berkeley.edu</div>
+        <div>Ece Eris — 3038827560 — eceeris@berkeley.edu</div>
+        <div>Umesh Gopi — 3040663577 — umesh_gopi@berkeley.edu</div>
+      </div>
+
+      <div class="meta milestone-meta">
+        <div><span class="meta-label">Term:</span> Spring 2026</div>
+        <div>
+          <span class="meta-label">Project webpage:</span>
+          <a class="text-link" href="https://kristaghazaleh.github.io/final_project_proposal-CS184/">
+            https://kristaghazaleh.github.io/final_project_proposal-CS184/
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-inner">
+      <div class="toc-title">Contents</div>
+      <a href="#Abstract">Abstract</a>
+      <a href="#TechnicalApproach">Technical Approach</a>
+      <a href="#Results">Results</a>
+      <a href="#References">References</a>
+      <a href="#TeamContributions">Team Contributions</a>
+    </div>
+  </nav>
+
+  <aside class="side-toc" aria-label="Quick navigation panel">
+    <div class="side-toc-inner">
+      <div class="side-toc-title">Contents</div>
+      <a href="#Abstract">Abstract</a>
+      <a href="#TechnicalApproach">Technical Approach</a>
+      <a href="#Results">Results</a>
+      <a href="#References">References</a>
+      <a href="#TeamContributions">Team Contributions</a>
+    </div>
+  </aside>
+
+  <main class="page">
+    <section id="Abstract" class="content">
+      <h2>Abstract</h2>
+
+      <p>
+        Tidal Weave is a real-time ocean surface simulation and rendering project grounded in Tessendorf’s spectral ocean framework.
+        Our goal was to build a system that combines believable open-ocean motion with a water appearance driven by surface response
+        rather than a static textured plane. The final project is organized around three tightly connected parts: surface geometry,
+        water shading, and presentation of the rendered scene.
+      </p>
+
+      <p>
+        Over the course of the project, we built a stable OpenGL renderer, a tiled ocean patch, a displacement pipeline, and a water
+        shading prototype that made the surface read more convincingly as water through displaced normals, view-dependent response,
+        and overall scene framing. The most important lesson from the project was that believable water depends on geometry and shading
+        working together: a moving height field alone is not enough, and the surface only starts to feel convincing once motion, normals,
+        and rendering choices reinforce each other. Our final result is a working ocean prototype that demonstrates this combined pipeline
+        and documents the path from early mesh rendering to a much stronger water-surface appearance.
+      </p>
+
+      <figure class="figure hero-figure">
+        <div class="figure-box">
+          <img src="goal-reference.jpg" alt="Reference image showing the intended ocean look and mood." />
+        </div>
+        <figcaption class="caption">
+          Visual target: broad swells, grazing-angle highlights, bluish body color, and a cinematic horizon response.
+        </figcaption>
+      </figure>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="TechnicalApproach" class="content">
+      <h2>Technical Approach</h2>
+
+      <h3>Geometry and surface construction</h3>
+      <p>
+        The simulation is built around a tiled ocean patch that provides the basic mesh structure for the surface. From there, the
+        renderer updates the patch over time through animated displacement, giving the system a working ocean surface backbone before
+        the full spectral simulation is inserted. This phased approach let us validate the renderer, mesh generation, and update loop
+        before moving further into more advanced surface behavior.
+      </p>
+
+      <div class="equation-line">
+        <span>h(x,t) = Σ<sub>k</sub> h̃(k,t)e<sup>ik·x</sup></span>
+      </div>
+
+      <p class="equation-follow">
+        Spectral height-field target for the ocean surface model.
+      </p>
+
+      <p>
+        In the current implementation, the displacement stage establishes the evolving surface and gives the renderer a stable place to
+        later connect the full spectral formulation. This meant that even when the project was still in prototype form, the geometry path
+        was already structured around the eventual simulation goal rather than being a one-off visual effect.
+      </p>
+
+      <h3>Shading and rendering</h3>
+      <p>
+        The second major part of the project is the water shader. Its role is to turn the animated surface into something that visually
+        reads as water through the use of displaced-surface normals, color response, and view-dependent behavior. Through iteration, we
+        found that the surface only began to look believable once the geometry and shading were coupled more carefully, especially when
+        the camera angle and the surface-response logic started to reinforce the shape of the waves rather than flatten them.
+      </p>
+
+      <h3>Problems encountered and how we addressed them</h3>
+      <p>
+        One recurring challenge was that early prototypes could move, but still did not look convincingly like water. A second issue was
+        integrating shader files and renderer behavior in a way that stayed stable while we iterated. We addressed these problems by
+        building the project in phases, validating each layer separately, and adjusting the surface shading only after the renderer and
+        displacement pipeline were already reliable. This made it much easier to distinguish setup problems from visual problems.
+      </p>
+
+      <h3>Lessons learned</h3>
+      <p>
+        The biggest lesson from the project is that water appearance depends on more than motion. Surface slope, normals, camera angle,
+        and shading behavior matter just as much as displacement itself. We also learned that phased prototyping was the right strategy:
+        validating the mesh and renderer first made later shader development much more manageable and gave us a cleaner path toward the
+        final spectral simulation.
+      </p>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="Results" class="content">
+      <h2>Results</h2>
+
+      <h3>Final demonstration</h3>
+      <p>
+        The final system demonstrates a working real-time ocean prototype that combines a tiled surface, animated displacement,
+        shader-driven water appearance, and scene framing into a single application. The embedded clip below can be replaced with the
+        final showcase video, GIF, or animation for the completed project.
+      </p>
+
+      <figure class="figure hero-figure web-only">
+        <div class="figure-box media-switch">
+          <video
+            class="screen-video"
+            controls
+            muted
+            playsinline
+            preload="metadata"
+            poster="images/shader_progress.jpg"
+            src="clips/milestone_video.mp4">
+          </video>
+
+          <img
+            class="print-thumb"
+            src="images/shader_progress.jpg"
+            alt="Thumbnail from the final demonstration clip." />
+        </div>
+        <figcaption class="caption">
+          Final system demonstration. Replace the source above with the finished showcase clip when the final video is ready.
+        </figcaption>
+      </figure>
+
+      <h3>Development snapshots</h3>
+      <p class="section-intro">
+        The images and clips below document the progression from a base ocean patch to animated displacement and then to a stronger
+        water-surface result. If you later have stronger final stills, these can either remain here as development snapshots or be
+        replaced by final rendered results.
+      </p>
+
+      <div class="threecol milestone-media">
+        <figure class="figure">
+          <div class="figure-box">
+            <img src="images/simple_plane.jpg" alt="Early flat ocean patch rendering." />
+          </div>
+          <figcaption class="caption">Base ocean patch and stable render path.</figcaption>
+        </figure>
+
+        <figure class="figure video-figure">
+          <div class="figure-box media-switch">
+            <video
+              class="screen-video"
+              controls
+              muted
+              playsinline
+              preload="metadata"
+              poster="images/geometry_progress.jpg"
+              src="clips/wave_progress.mp4">
+            </video>
+
+            <img
+              class="print-thumb"
+              src="images/geometry_progress.jpg"
+              alt="Thumbnail from the wireframe animated displacement prototype." />
+          </div>
+          <figcaption class="caption">Wireframe animated displacement prototype.</figcaption>
+        </figure>
+
+        <figure class="figure video-figure">
+          <div class="figure-box media-switch">
+            <video
+              class="screen-video"
+              controls
+              muted
+              playsinline
+              preload="metadata"
+              poster="images/shader_progress.jpg"
+              src="clips/shader_progress.mp4">
+            </video>
+
+            <img
+              class="print-thumb"
+              src="images/shader_progress.jpg"
+              alt="Thumbnail from the shaded water-surface prototype." />
+          </div>
+          <figcaption class="caption">Shaded water-surface prototype.</figcaption>
+        </figure>
+      </div>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="References" class="content">
+      <h2>References</h2>
+
+      <p>
+        [1] Jerry Tessendorf. <em>Simulating Ocean Water</em>. SIGGRAPH course notes.
+      </p>
+
+      <p>
+        [2] OpenGL, GLFW, GLAD, and GLM documentation used during renderer and application development.
+      </p>
+
+      <p>
+        [3] Add any additional papers, articles, tutorials, or shader references that directly informed the final implementation.
+      </p>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="TeamContributions" class="content">
+      <h2>Team Contributions</h2>
+
+      <p>
+        <span class="meta-label">Ellie Ghazaleh:</span>
+        Replace this line with Ellie’s final contribution summary, such as renderer integration, shader iteration,
+        webpage/report assembly, media capture, or presentation work.
+      </p>
+
+      <p>
+        <span class="meta-label">Johanna Liu:</span>
+        Replace this line with Johanna’s final contribution summary.
+      </p>
+
+      <p>
+        <span class="meta-label">Ece Eris:</span>
+        Replace this line with Ece’s final contribution summary.
+      </p>
+
+      <p>
+        <span class="meta-label">Umesh Gopi:</span>
+        Replace this line with Umesh’s final contribution summary.
+      </p>
+
+      <div class="divider"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">Tidal Weave — CS 184 Final Report</div>
+  </footer>
+
+  <script>
+    const activeSlide = document.getElementById('active-slide');
+    const thumbButtons = document.querySelectorAll('.slide-thumb');
+
+    if (activeSlide && thumbButtons.length > 0) {
+      thumbButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeSlide.src = button.dataset.full;
+          activeSlide.alt = button.dataset.alt;
+
+          thumbButtons.forEach((btn) => btn.classList.remove('active'));
+          button.classList.add('active');
+        });
+      });
+    }
+  </script>
+</body>
+</html>
