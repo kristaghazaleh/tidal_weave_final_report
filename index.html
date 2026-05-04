@@ -201,16 +201,106 @@
     </div>
 
     <h3>Problems Encountered and Lessons Learned</h3>
-    <p>Our primary engineering challenge was the massive performance gap between mathematical correctness and algorithmic efficiency. During our bridge-stage prototyping, evaluating many spectral contributions per vertex directly on the CPU resulted in an \(O(N^2)\) brute-force update. This was so slow that the application was practically unusable in Debug mode, relying heavily on compiler optimizations in Release mode just to achieve basic interactivity. This bottleneck proved that practical interactive performance requires the \(O(N\log N)\) efficiency of an FFT-based implementation. To preserve interactivity during the transition, we temporarily utilized a lighter development configuration (reduced mesh and spectral resolution) without sacrificing the underlying mathematical model.</p>
+    <p>Our primary engineering challenge was the massive performance gap between mathematical correctness and algorithmic efficiency. During our bridge-stage prototyping, we performed per-frame CPU computation of spectral wave contributions, and evaluating many spectral contributions per vertex directly on the CPU resulted in an \(O(N^2)\) brute-force update. This was so slow that the application was practically unusable in Debug mode, relying heavily on compiler optimizations in Release mode just to achieve basic interactivity. This bottleneck proved that practical interactive performance requires the \(O(N\log N)\) efficiency of an FFT-based implementation. To preserve interactivity during the transition, we temporarily utilized a lighter development configuration (reduced mesh and spectral resolution) without sacrificing the underlying mathematical model.</p>
 
-    <p>Visually, the most important lesson was that water appearance is profoundly dependent on the synergistic coupling of geometry and optics. A moving height field did not read as water until the slope-consistent CPU normals and exact Fresnel response were integrated. The lighting must reinforce the specific structural crests and valleys simulated by the Phillips spectrum rather than flattening them with painted albedo.</p>
+    <div class="media-placeholder">
+      [Insert Video of the really slow waves]
+    </div>
+    
+    <p>Visually, this simply meant our waves were moving unrealistically slowly as they are only updating as fast as our computation finishes. The degraded motion was choppy and 
+      not of our desired look. The slowdown was expected: each frame updates a dense mesh and evaluates many spectral contributions per vertex before recomputing normals and uploading the mesh back to the GPU. 
+    </p>
 
+    <p>The most important lesson was then that water appearance is profoundly dependent on the synergistic coupling of geometry and optics. A moving height field did not read as water until the slope-consistent CPU normals and exact Fresnel response were integrated. The lighting must reinforce the specific structural crests and valleys simulated by the Phillips spectrum rather than flattening them with painted albedo.</p>
+
+    <p>Secondly, in our earlier prototypes, a smaller patch size was used, ranging from 6m x 6m to 13m x 13m. While this worked technically, the resulting graphics
+      looked unrealistic, with the ocean patch being cut off towards sides or towards the back of our camera view, and the ocean's waves came in
+      noticeably repetitive patterns, with shorter, choppier ripples due to the patch size limit. To address this challenge, we progressively 
+      increased our patch size, \(L\), up till 750m x 750m. This expanded the domain of the simulation, with the ocean stretching towards the back
+      realistically to imitate how a horizon line looks. With longer wavelengths, the waves also were less noticeably repetitive, exhibiting more realistic
+      waves similar to an actual ocean. We also enabled a preset in wave intensity, as we were aiming to scale the wave activity more accurately to a vast sized ocean patch, and using calmer looking waves
+      (lower amplitude) often looked more realistic.</p>
+
+
+
+    <h3>Environemnt: HDR, Shaders, and Fog</h3>
+    <p>One piece of feedback we received from our TA Atsu was presentation-related, advising us to avoid showing the corners of the wave patch and having a plain black background.
+      An environment map and/or surrounding scene was recommended.</p> 
+
+      <p>With only a black background in our earliest prototypes, the waves looked almost completely fake, with no realistic specular reflections at all. Water's visibility and realism
+        depends on reflections, sky color bleed, and more, and none of this could be achieved with just a black background.
+        In accordance with this feedback, we first tried to use flat but patterned backgrounds behind the waves to simulate something like a starry night. However, the simulation still looked unrealistic, with little 
+      sense of depth gained from the background The waves reflected the black and grey tones, with little to no specular highlights. This was visually flat. We then moved on to use depth-relative backgrounds
+      and using HDRs that are not toned just black to our advantage. For example, night time waves were more realistic with blue light (insead of black), so switching to a bluer toned HDR and making the lighting blue helped
+      the simulation look more realistic.</p>
+
+    <div class="media-placeholder">
+      [compare image of the starry night with our new nighttime]
+    </div>
+
+      <p>We extended the FFT-based ocean renderer by adding HDR environment rendering and reflection support. We introduced two environment presets, 
+        a sunset sky and a night sky, loaded from HDR panorama files stored in the project’s HDR folder. The renderer now loads the Radiance HDR files into 
+        floating-point OpenGL textures, draws a separate sky pass from the active environment map, and uses that same environment as the reflection source for the ocean surface. 
+        This made the water respond much more like an actual reflective surface instead of relying only on a flat background color.</p>
+
+    <p>To make the environments usable in practice, we also tuned the mapping and presentation of the HDR panoramas. That included correcting the vertical orientation of the equirectangular lookup, 
+      introducing controllable alignment parameters such as rotation and camera framing, and adjusting the exposure so that the sunset band and night stars could be made visible without 
+      rewriting the ocean geometry. The important result of this stage was not perfect physical sky rendering, but a substantial improvement in overall scene presentation: 
+      the FFT ocean is now placed inside a believable environment, with sky color and reflected lighting contributing directly to the final appearance. This gives us a much stronger visual 
+      foundation for the next step, which is adding fog/atmospheric depth on top of the current environment pass.
+</p>
+
+    <h4>Shaders</h4>
+    <p>To address the flat, fabric-like appearance of the ocean surface, we added two layers of procedural detail to the shaders. In the fragment shader, 
+      a normal mapping function perturbs the FFT surface normal using two scrolling sine-wave layers at different scales and directions. The first layer tiles at a 
+      medium scale and drifts diagonally over time; the second is finer and scrolls at a cross angle, producing a cross-hatch ripple pattern that varies across the surface. 
+      These perturbed normals are used for all lighting calculations, so the surface responds to light as if it has fine micro-facet detail even where the underlying FFT geometry is smooth. 
+      A tight micro-specular term is added to the final lighting sum, which fires only when a micro-facet briefly aligns with the light direction, producing the point-like glints and sparkle 
+      characteristic of real water surfaces. In the vertex shader, a complementary displacement mapping pass physically moves each vertex in the Y direction using two additional sine-wave layers 
+      with different spatial frequencies and scroll speeds. Unlike the normal mapping which only affects shading, this displacement changes the actual geometry, adding visible surface variation to 
+      the silhouette and wave crests on top of the FFT height field. Together, the two techniques operate at different scales: the FFT provides the large swell structure, the vertex displacement adds 
+      medium-scale geometric detail, and the normal mapping handles the finest visual texture and light interaction.</p>
+
+    <h4>Fog</h4>
+      <p>
+        note: ellie's section on airlight forward single scattering for fog. ellie pls add to this <3
+       </p>
+    <p>In rendering, fog is an approximation of volumetric scattering, simulating interactions between light and air. We are sampling a mathematical density field,
+      and due to this, a very common graphics artifact of the attempt to simulate fog is a thick, unrealistic 'blob' of fog. This stems from both depth
+    distribution issues and low resolution sampling, where many pixels end up with the same fog values, resulting in a uniform and unrealistic representation of fog. The solution to this issue
+    is a technique called airlight forward single scattering, utilizing layers to our advantage.</p>
+    
+
+    
+    
     <h2>Results</h2>
     <p>Transitioning from the procedural displacement model to the FFT implementation dramatically improved our surface structure, providing a realistic multiscale distribution that properly layers high-frequency details over broad swells. Our final application seamlessly ties this spectral evolution to a view-dependent Fresnel shader.</p>
 
     <div class="media-placeholder media-large">
       [Insert Final Video: The finished showcase clip/GIF demonstrating the real-time simulation in motion]
     </div>
+
+    <h3>Limitations and Future Improvements</h3>
+    <p>A primary future improvement we are very interested in is to add more variation to the waves to handle tiling better. Due to the periodic nature of 
+    our simulation, waves are repetitive and often noticeably so. We want to hide and/or break up this repetition. The ocean patch repeats seamlessly
+    in all directions, so the same wave patterns reappear every \(L\) units. By introducing more wave spectras (different amplitudes, frequencies, directions), 
+      random offsets, or additional wave layers, our waves will be less repetitive and more realistic. Adding foam or other unique surface artifacts and characteristics 
+      will also make the ocean water more believable.
+      Additionally, variation can also be introduced in accordance to our night/day presets.</p>
+
+    <p>Secondly, our fog implementation is very basic at this point in our scene, and we would've also introduced variation to our fog given more time. 
+      The ideal fog implementation would be a volumetric fog (instead of layers of 2D fog). This is more computationally expensive, needing multiple samples along a ray
+      and other 3D and density characteristics, but is significantly more realistic. In relation to this, we also hope to work on the interpolation between the colors of the fog 
+      and the water. This would replace a sharp cut off with a gradual transition. We also hope to use interpolation to achieve an even more realistic horizon
+      line, where distant waves naturally fade into the background and lose constrast naturally.</p>
+
+      
+    <p>Another future feature we were also interested in implementing was to go above and beyond and simulate different types of fluids and liquids.
+    Viscosity impacts how fluids move in waves, and exploring how this quality impacts the way we mathematically and technically approach our simulation
+    would be a very insightful challenge had we had more time. </p>
+
+
+    
 
     <p>The progression of our rendering pipeline is visible through these development snapshots:</p>
     <div class="grid-2">
