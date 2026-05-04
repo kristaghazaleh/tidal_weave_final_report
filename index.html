@@ -204,7 +204,7 @@
     <p>Our primary engineering challenge was the massive performance gap between mathematical correctness and algorithmic efficiency. During our bridge-stage prototyping, we performed per-frame CPU computation of spectral wave contributions, and evaluating many spectral contributions per vertex directly on the CPU resulted in an \(O(N^2)\) brute-force update. This was so slow that the application was practically unusable in Debug mode, relying heavily on compiler optimizations in Release mode just to achieve basic interactivity. This bottleneck proved that practical interactive performance requires the \(O(N\log N)\) efficiency of an FFT-based implementation. To preserve interactivity during the transition, we temporarily utilized a lighter development configuration (reduced mesh and spectral resolution) without sacrificing the underlying mathematical model.</p>
 
     <div class="media-placeholder">
-      <video src="shader_progress.mp4" controls></video>  
+      <video src="shader_progress.mp4" controls width="600"></video>  
     </div>
     
     <p>Visually, this simply meant our waves were moving unrealistically slowly as they are only updating as fast as our computation finishes. The degraded motion was choppy and 
