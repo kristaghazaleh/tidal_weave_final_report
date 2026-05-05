@@ -6,343 +6,703 @@
   <meta name="description" content="CS 184 final report for Tidal Weave: a real-time ocean surface simulation and rendering project." />
   <title>Tidal Weave — Final Report</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-  <!-- MathJax for rendering LaTeX formulas -->
+  <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
   <style>
-    /* Custom Styles mimicking the requested academic aesthetic */
-    :root {
-      --bg-color: #faf9f6;
-      --text-color: #2c2c2c;
-      --accent-color: #1a365d;
-      --border-color: #e2e8f0;
-    }
-
-    body {
-      font-family: 'EB Garamond', serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-      font-size: 1.15rem;
-    }
-
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-      background-color: #ffffff;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .hero {
+    .placeholder-note {
+      color: var(--muted);
       text-align: center;
-      padding: 3rem 0;
-      border-bottom: 2px solid var(--border-color);
-      margin-bottom: 3rem;
-    }
-
-    .course-line {
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #64748b;
-      margin-bottom: 1rem;
-    }
-
-    .title {
-      font-size: 2.8rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      margin: 0 0 1.5rem 0;
-      line-height: 1.2;
-    }
-
-    .group-list {
-      font-size: 1.1rem;
       font-style: italic;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      color: #475569;
+      padding: 24px 18px;
+      line-height: 1.35;
     }
-
-    h2 {
-      font-size: 2rem;
-      color: var(--accent-color);
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
-      margin-top: 3rem;
-      margin-bottom: 1.5rem;
-    }
-
-    h3 {
-      font-size: 1.5rem;
-      color: var(--accent-color);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      margin-bottom: 1.25rem;
-      text-align: justify;
-    }
-
-    ul {
-      margin-bottom: 1.5rem;
-      padding-left: 2rem;
-    }
-
-    li {
-      margin-bottom: 0.5rem;
-    }
-
-    .math-block {
-      text-align: center;
-      margin: 2rem 0;
-      font-size: 1.2rem;
-      overflow-x: auto;
-    }
-
-    .media-placeholder {
-      width: 100%;
-      height: 300px;
-      background-color: #f1f5f9;
-      border: 2px dashed #cbd5e1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      font-style: italic;
-      margin: 2rem 0;
-      text-align: center;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-
-    .media-large {
-      height: 450px;
-    }
-
-    .grid-2 {
+    .two-up {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      align-items: start;
+      margin-top: 10px;
     }
-
-    a {
-      color: #2563eb;
-      text-decoration: none;
+    @media (max-width: 860px) {
+      .two-up {
+        grid-template-columns: 1fr;
+      }
     }
-
-    a:hover {
-      text-decoration: underline;
+    @media print {
+      .placeholder-note {
+        font-size: 8.9pt;
+        padding: 12px 10px;
+      }
     }
   </style>
 </head>
 <body>
-  <main>
-    <header class="hero">
-      <div class="hero-inner">
-        <div class="course-line">CS 184 / 284A FINAL PROJECT REPORT</div>
-        <h1 class="title">Tidal Weave: Real-Time Spectral Ocean Surface Simulation and Rendering</h1>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="course-line">CS 184 / 284A FINAL PROJECT REPORT</div>
+      <h1 class="title">Tidal Weave: Real-Time Spectral Ocean Surface Simulation and Rendering</h1>
 
-        <div class="group-list">
-          <div>Ellie Ghazaleh — 3035111314 — kristaghazaleh@berkeley.edu</div>
-          <div>Johanna Liu — 3038050576 — johanna.liu@berkeley.edu</div>
-          <div>Ece Eris — 3038827560 — eceeris@berkeley.edu</div>
-          <div>Umesh Gopi — 3040663577 — umesh_gopi@berkeley.edu</div>
+      <div class="group-list">
+        <div>Ellie Ghazaleh — 3035111314 — kristaghazaleh@berkeley.edu</div>
+        <div>Johanna Liu — 3038050576 — johanna.liu@berkeley.edu</div>
+        <div>Ece Eris — 3038827560 — eceeris@berkeley.edu</div>
+        <div>Umesh Gopi — 3040663577 — umesh_gopi@berkeley.edu</div>
+      </div>
+
+      <div class="meta milestone-meta">
+        <div><span class="meta-label">Term:</span> Spring 2026</div>
+        <div>
+          <span class="meta-label">Project webpage:</span>
+          <a class="text-link" href="https://kristaghazaleh.github.io/tidal_weave_final_report/">
+            https://kristaghazaleh.github.io/tidal_weave_final_report/
+          </a>
         </div>
       </div>
-    </header>
-
-    <h2>Abstract</h2>
-    <p>Tidal Weave is a real-time ocean surface simulation and rendering project grounded in Jerry Tessendorf’s spectral ocean framework. Our goal was to construct a water system that is both technically and visually polished, exhibiting large-scale swell motion, medium-scale directional wave structure, and high-frequency optical detail. The project evolved from a procedural multi-wave prototype into a mathematically rigorous Fast Fourier Transform (FFT) pipeline for wave displacement, coupled directly to a fragment shader computing exact Snell's Law Fresnel reflections. Our final result is an interactive prototype that convincingly recreates the structural motion, view-dependent reflectivity, and multiscale details expected from cinematic open-ocean waters.</p>
-
-    <div class="media-placeholder">
-      [Insert Abstract Image: Visual target showcasing broad swells, grazing-angle highlights, and bluish body color]
     </div>
+  </header>
 
-    <h2>Technical Approach</h2>
-
-    <h3>1. Geometry and Spectral Surface Construction</h3>
-    <p>We model the water as a dynamically displaced surface whose motion is governed by a spectral wave formulation. In our initial "bridge-stage" milestone, we reconstructed the surface height by looping through and summing deep-water wave modes on the CPU. This phased approach allowed us to validate the OpenGL render loop. However, to achieve real-time open-water motion with dense, multi-scale detail, we transitioned to a Fast Fourier Transform (FFT) implementation, representing the wave height field in frequency space.</p>
-
-    <p>The spectral surface height is modeled as a sum of sinusoidal waves:</p>
-    <div class="math-block">$$h(\mathbf{x},t)=\sum_{\mathbf{k}}\tilde{h}(\mathbf{k},t)e^{i\mathbf{k}\cdot\mathbf{x}}$$</div>
-
-    <p>To produce realistic, wind-driven wave distributions, we populate the initial wave amplitudes using the Phillips spectrum, filtering out waves moving perpendicular to the wind:</p>
-    <div class="math-block">$$P_h(\mathbf{k})=A\frac{exp(-1/(kL)^2)}{k^4}|\hat{\mathbf{k}}\cdot\hat{\mathbf{w}}|^2$$</div>
-
-    <p>Our implementation dynamically evaluates this spectrum for discrete wavevectors across a structured grid. To begin, we compute the length of each wavevector, effectively setting the energy to zero if the length is negligible. For active modes, the Phillips formula is computed incorporating both wind speed and wind direction to define the macroscopic scale of the system, establishing a physically grounded baseline amplitude for every frequency mode.</p>
-
-    <p>Once the initial spectrum is generated, these amplitudes must be evolved over time. We iterate over the frequency grid, isolating the discrete components and calculating the angular frequency \(\omega\) utilizing the deep-water dispersion relation (\(\omega^2(k)=gk\)). We advance each complex amplitude through time using Euler's formula, carefully combining the positive and complex-conjugate negative frequency modes to ensure a purely real spatial result. This continuously updated frequency grid is then passed to the FFTW framework, which performs an inverse discrete Fourier transform to yield the final spatial height field for the current frame.</p>
-
-    <div class="media-placeholder">
-      [Insert Geometry Image: Wireframe animated displacement prototype showing the FFT-generated surface structure]
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-inner">
+      <div class="toc-title">Contents</div>
+      <a href="#Abstract">Abstract</a>
+      <a href="#TechnicalApproach">Technical Approach</a>
+      <a href="#Results">Results</a>
+      <a href="#FinalProjectVideo">Final Project Video</a>
+      <a href="#References">References</a>
+      <a href="#TeamContributions">Team Contributions</a>
     </div>
+  </nav>
 
-    <h3>2. Optics and Shading</h3>
-    <p>A mathematically animated height field does not automatically look like water. The surface optics must be explicitly modeled. Because reflectivity depends strongly on local slope, applying lighting purely from vertex displacements in GLSL proved visually inconsistent. We solved this by strictly computing the slope normals on the CPU using central finite differences of the FFT spatial gradients (\(\partial h/\partial x\) and \(\partial h/\partial z\)) before pushing the mesh to the GPU. By sampling neighboring heights and scaling by the grid spacing, we synthesize orthogonal tangent vectors and cross them to formulate a highly precise, normalized surface normal.</p>
-
-    <p>Our GLSL vertex shader cleanly routes these exact CPU normals to the fragment shader. To achieve our cinematic optical targets, we circumvented simplified approximations (such as Schlick's) in favor of the exact Fresnel reflectivity equations derived from Snell's law. Utilizing water's physical index of refraction (1.34), our shader computes the incident and transmitted angles for each fragment based on the camera view vector. It then applies the full polarized Fresnel formulas to determine the precise ratio of reflection to refraction.</p>
-    
-    <p>This calculated coefficient dynamically mixes our sampled HDR sky environment with an underlying deep-blue scattering color. Finally, we isolate the light direction to compute a tight Blinn-Phong specular glint, selectively applying bright highlights to the crests of the waves when they align precisely with the sun's half-vector.</p>
-
-    <div class="media-placeholder">
-      [Insert Shading Image: Shaded water-surface prototype highlighting Fresnel reflections and specular crests]
+  <aside class="side-toc" aria-label="Quick navigation panel">
+    <div class="side-toc-inner">
+      <div class="side-toc-title">Contents</div>
+      <a href="#Abstract">Abstract</a>
+      <a href="#TechnicalApproach">Technical Approach</a>
+      <a href="#Results">Results</a>
+      <a href="#FinalProjectVideo">Final Project Video</a>
+      <a href="#References">References</a>
+      <a href="#TeamContributions">Team Contributions</a>
     </div>
+  </aside>
 
-    <h3>Problems Encountered and Lessons Learned</h3>
-    <p>Our primary engineering challenge was the massive performance gap between mathematical correctness and algorithmic efficiency. During our bridge-stage prototyping, we performed per-frame CPU computation of spectral wave contributions, and evaluating many spectral contributions per vertex directly on the CPU resulted in an \(O(N^2)\) brute-force update. This was so slow that the application was practically unusable in Debug mode, relying heavily on compiler optimizations in Release mode just to achieve basic interactivity. This bottleneck proved that practical interactive performance requires the \(O(N\log N)\) efficiency of an FFT-based implementation. To preserve interactivity during the transition, we temporarily utilized a lighter development configuration (reduced mesh and spectral resolution) without sacrificing the underlying mathematical model.</p>
+  <main class="page">
+    <section id="Abstract" class="content">
+      <h2>Abstract</h2>
 
+      <p>
+        Tidal Weave is a real-time ocean surface simulation and rendering project organized
+        around the same core goals laid out in our proposal: physically motivated ocean
+        geometry, view-dependent water appearance, environment-driven lighting, and a
+        presentation-ready interactive renderer. Our final system centers on a spectral ocean
+        formulation inspired by Tessendorf, implemented as an evolving frequency-domain height
+        field whose inverse Fast Fourier Transform drives a large ocean patch in real time. On
+        top of that simulation layer, we built a water shader that combines slope-derived
+        normals, Fresnel-weighted environment reflection, procedural micro-detail, and
+        atmosphere-aware scene lighting so that the surface reads as ocean water rather than as
+        a generic reflective plane.
+      </p>
 
-    <figure class="media-placeholder">
-  <video src="shader_progress.mp4" controls width="600"></video>
-  <figcaption>Per-frame CPU computations led to slow waves in our simulation.</figcaption>
-</figure>
-    
-    <!-- <div class="media-placeholder">
-      <video src="shader_progress.mp4" controls width="600"></video>  
-      <p class="caption">Per-frame CPU computations led to slow waves in our simulation.</p>
-    </div> -->
-    
-    <p>Visually, this simply meant our waves were moving unrealistically slowly as they are only updating as fast as our computation finishes. The degraded motion was choppy and 
-      not of our desired look. The slowdown was expected: each frame updates a dense mesh and evaluates many spectral contributions per vertex before recomputing normals and uploading the mesh back to the GPU. 
-    </p>
+      <p>
+        The project evolved through several concrete stages. We began with a bridge-stage CPU
+        wave prototype to validate rendering, mesh generation, and update logic. We then
+        replaced the brute-force wave accumulation step with an FFT-based pipeline, computed
+        slope fields and normals from the spectral data, separated visible mesh size from
+        wave-tile size so that the ocean could span hundreds of meters without blowing up the
+        wavelength scale, and added layered breakup to reduce repetition at large patch sizes.
+        Finally, we integrated HDR sky rendering, environment reflection, and a stylized
+        single-scattering fog pass to improve horizon depth and lighting coherence. The result
+        is a real-time renderer that achieves the proposal’s central visual target: broad
+        swells, medium-scale directional structure, high-frequency sparkle, and an ocean surface
+        whose geometry and optics reinforce one another.
+      </p>
 
-    <p>The most important lesson was then that water appearance is profoundly dependent on the synergistic coupling of geometry and optics. A moving height field did not read as water until the slope-consistent CPU normals and exact Fresnel response were integrated. The lighting must reinforce the specific structural crests and valleys simulated by the Phillips spectrum rather than flattening them with painted albedo.</p>
+      <figure class="figure hero-figure">
+        <div class="figure-box">
+          <img src="images/final_image.jpg" alt="a beautiful sunset scene" />
+        </div>
+        <figcaption class="caption">
+          A sunset HDRI lit calm ocean scene, with a light animated fog over the horizon.
+        </figcaption>
+      </figure>
 
-    <p>Secondly, in our earlier prototypes, a smaller patch size was used, ranging from 6m x 6m to 13m x 13m. While this worked technically, the resulting graphics
-      looked unrealistic, with the ocean patch being cut off towards sides or towards the back of our camera view, and the ocean's waves came in
-      noticeably repetitive patterns, with shorter, choppier ripples due to the patch size limit. To address this challenge, we progressively 
-      increased our patch size, \(L\), up till 750m x 750m. This expanded the domain of the simulation, with the ocean stretching towards the back
-      realistically to imitate how a horizon line looks. With longer wavelengths, the waves also were less noticeably repetitive, exhibiting more realistic
-      waves similar to an actual ocean. We also enabled a preset in wave intensity, as we were aiming to scale the wave activity more accurately to a vast sized ocean patch, and using calmer looking waves
-      (lower amplitude) often looked more realistic.</p>
+      <div class="divider"></div>
+    </section>
 
+    <section id="TechnicalApproach" class="content">
+      <h2>Technical Approach</h2>
 
+      <h3>Geometry and Spectral Surface Construction</h3>
+      <p>
+        The numerical backbone of the project is the spectral representation of the water
+        surface. Following Tessendorf’s framework, we treat the ocean as a height field over a
+        horizontal domain rather than as a full volumetric fluid. The surface is therefore
+        represented by a time-dependent function \(h(\mathbf{x}, t)\) reconstructed from Fourier
+        modes:
+      </p>
+      <div class="equation-line">\[
+        h(\mathbf{x}, t) = \sum_{\mathbf{k}} \tilde{h}(\mathbf{k}, t) e^{i\mathbf{k}\cdot\mathbf{x}}.
+      \]</div>
 
-    <h3>Environemnt: HDR, Shaders, and Fog</h3>
-    <p>One piece of feedback we received from our TA Atsu was presentation-related, advising us to avoid showing the corners of the wave patch and having a plain black background.
-      An environment map and/or surrounding scene was recommended.</p> 
+      <p>
+        Here \(\mathbf{k} = (k_x, k_z)\) is a horizontal wavevector and each complex coefficient
+        \(\tilde{h}(\mathbf{k}, t)\) describes the amplitude and phase of one spectral mode. The
+        frequency-domain representation is useful because it separates the large problem of
+        “draw believable ocean waves” into smaller numerical tasks: initialize a physically
+        plausible spectrum, evolve that spectrum over time, and then reconstruct the spatial
+        surface with an inverse FFT.
+      </p>
 
-      <p>With only a black background in our earliest prototypes, the waves looked almost completely fake, with no realistic specular reflections at all. Water's visibility and realism
-        depends on reflections, sky color bleed, and more, and none of this could be achieved with just a black background.
-        In accordance with this feedback, we first tried to use flat but patterned backgrounds behind the waves to simulate something like a starry night. However, the simulation still looked unrealistic, with little 
-      sense of depth gained from the background. The waves reflected the black and grey tones, with little to no specular highlights. This was visually flat. We then moved on to use depth-relative backgrounds
-      and using HDRs that are not toned just black to our advantage. For example, night time waves were more realistic with blue light (instead of black), so switching to a bluer toned HDR and making the lighting blue helped
-      the simulation look more realistic.</p>
+      <p>
+        We initialize the wave amplitudes from the Phillips spectrum, which biases the energy
+        toward wind-aligned waves while damping unreasonably small wavelengths:
+      </p>
+      <div class="equation-line">\[
+        P_h(\mathbf{k}) =
+        A\,\frac{e^{-1/(kL)^2}}{k^4}\,\left|\hat{\mathbf{k}}\cdot\hat{\mathbf{w}}\right|^2
+        e^{-k^2\ell^2},
+        \qquad L = \frac{V^2}{g}.
+      \]</div>
 
+      <p>
+        In this expression, \(A\) controls overall amplitude, \(V\) is wind speed,
+        \(\hat{\mathbf{w}}\) is wind direction, \(g\) is gravitational acceleration, and
+        \(\ell\) is a small-wave damping parameter. The spectrum is then sampled with Gaussian
+        random variables so that each Fourier mode begins with a random but statistically
+        structured amplitude:
+      </p>
+      <div class="equation-line">\[
+        \tilde{h}_0(\mathbf{k}) = \frac{1}{\sqrt{2}}(\xi_r + i\xi_i)\sqrt{P_h(\mathbf{k})}.
+      \]</div>
 
-    <figure class="media-row">
-  <video src="fog_night.mp4" controls width = "400"></video>
-  <img src="night_1.png" alt="night time render" width = "400">
+      <p>
+        Once initialized, the modes are evolved with the deep-water dispersion relation. We compute
+      </p>
+      <div class="equation-line">\[
+        \omega^2(\mathbf{k}) = g\,\lVert \mathbf{k} \rVert,
+        \qquad
+        \tilde{h}(\mathbf{k}, t) = \tilde{h}_0(\mathbf{k}) e^{i\omega(\mathbf{k})t} +
+        \tilde{h}_0^*(-\mathbf{k}) e^{-i\omega(\mathbf{k})t}.
+      \]</div>
 
-  <figcaption>
-    Black vs. Blue lighting and background 
-  </figcaption>
-</figure>
-    <!-- <div class="media-placeholder">
-      [compare image of the starry night with our new nighttime]
-    </div> -->
+      <p>
+        The complex-conjugate pairing is important because it guarantees that the final spatial
+        height field is real-valued after reconstruction. In code, this meant storing the
+        initial complex amplitudes \(h_0\), computing the time-dependent coefficients at each
+        frame, and feeding those coefficients into an inverse two-dimensional FFT. Our
+        implementation uses a radix-2 one-dimensional FFT and applies it along both axes to
+        produce an inverse FFT over the spectral grid. The runtime improvement here is
+        substantial: the original brute-force bridge-stage approach scaled quadratically in the
+        number of modes being accumulated, while the FFT-based reconstruction reduces the
+        dominant spectral reconstruction cost to \(O(N^2 \log N)\) on an \(N \times N\) grid.
+      </p>
 
-      <p>We extended the FFT-based ocean renderer by adding HDR environment rendering and reflection support. We introduced two environment presets, 
-        a sunset sky and a night sky, loaded from HDR panorama files stored in the project’s HDR folder. The renderer now loads the Radiance HDR files into 
-        floating-point OpenGL textures, draws a separate sky pass from the active environment map, and uses that same environment as the reflection source for the ocean surface. 
-        This made the water respond much more like an actual reflective surface instead of relying only on a flat background color.</p>
+      <p>
+        A second important engineering step was decoupling the visible ocean mesh size from the
+        wave tile size. The final renderer uses a large visible patch so that the ocean extends
+        convincingly toward the horizon, but the repeating spectral wave tile remains much
+        smaller. In practical terms, we keep a large mesh size for world-space coverage while
+        sampling the spectral height field with a smaller \(\texttt{wavePatchSize}\). This
+        prevents the wavelengths from inflating when the visible ocean patch is enlarged.
+      </p>
 
-    <p>To make the environments usable in practice, we also tuned the mapping and presentation of the HDR panoramas. That included correcting the vertical orientation of the equirectangular lookup, 
-      introducing controllable alignment parameters such as rotation and camera framing, and adjusting the exposure so that the sunset band and night stars could be made visible without 
-      rewriting the ocean geometry. The important result of this stage was not perfect physical sky rendering, but a substantial improvement in overall scene presentation: 
-      the FFT ocean is now placed inside a believable environment, with sky color and reflected lighting contributing directly to the final appearance. This gives us a much stronger visual 
-      foundation for the next step, which is adding fog/atmospheric depth on top of the current environment pass.
-</p>
+      <p>
+        We also introduced layered sampling to reduce repetition. Instead of sampling only one
+        periodic realization of the spectral field, the final implementation blends several
+        rotated, offset, and rescaled samples of the same field. At higher wave-activity
+        settings these extra layers become more influential, which helps break up tiling
+        patterns across the large patch. This is still a periodic ocean model, but the
+        additional transformed samples and low-frequency modulation make the repetition
+        substantially less obvious.
+      </p>
 
-    <h4>Shaders</h4>
-    <p>To address the flat, fabric-like appearance of the ocean surface, we added two layers of procedural detail to the shaders. In the fragment shader, 
-      a normal mapping function perturbs the FFT surface normal using two scrolling sine-wave layers at different scales and directions. The first layer tiles at a 
-      medium scale and drifts diagonally over time; the second is finer and scrolls at a cross angle, producing a cross-hatch ripple pattern that varies across the surface. 
-      These perturbed normals are used for all lighting calculations, so the surface responds to light as if it has fine micro-facet detail even where the underlying FFT geometry is smooth. 
-      A tight micro-specular term is added to the final lighting sum, which fires only when a micro-facet briefly aligns with the light direction, producing the point-like glints and sparkle 
-      characteristic of real water surfaces. In the vertex shader, a complementary displacement mapping pass physically moves each vertex in the Y direction using two additional sine-wave layers 
-      with different spatial frequencies and scroll speeds. Unlike the normal mapping which only affects shading, this displacement changes the actual geometry, adding visible surface variation to 
-      the silhouette and wave crests on top of the FFT height field. Together, the two techniques operate at different scales: the FFT provides the large swell structure, the vertex displacement adds 
-      medium-scale geometric detail, and the normal mapping handles the finest visual texture and light interaction.</p>
+      <p>
+        Slope information is derived directly from the spectral representation rather than
+        approximated solely in screen space. If
+      </p>
+      <div class="equation-line">\[
+        \boldsymbol{\epsilon}(\mathbf{x}, t) = \nabla h(\mathbf{x}, t),
+      \]</div>
+      <p>
+        then in the Fourier domain each slope component is just the height coefficient
+        multiplied by \(i\mathbf{k}\). We therefore reconstruct both the height field and the
+        slope fields \(\partial h / \partial x\) and \(\partial h / \partial z\) with inverse
+        FFTs, then sample those fields over the mesh. The final surface normal takes the
+        familiar form
+      </p>
+      <div class="equation-line">\[
+        \hat{\mathbf{n}}(\mathbf{x}, t) = \frac{(-\partial h/\partial x,\, 1,\, -\partial
+        h/\partial z)}{\sqrt{1 + (\partial h/\partial x)^2 + (\partial h/\partial z)^2}}.
+      \]</div>
 
-    <h4>Fog</h4>
-    <p>In rendering, fog is an approximation of volumetric scattering, simulating interactions between light and air. We are sampling a mathematical density field,
-      and due to this, a very common graphics artifact of the attempt to simulate fog is a thick, unrealistic 'blob' of fog. This stems from both depth
-    distribution issues and low resolution sampling, where many pixels end up with the same fog values, resulting in a uniform and unrealistic representation of fog. The
-    following details how we implemented fog and fixed this issue.</p>
+      <p>
+        This normal is what couples the simulation to the shader. Without it, the renderer would
+        show animated displacement but not the correct orientation-dependent water response.
+      </p>
 
-    <p>For atmospheric depth, we used participating-media rendering as the main reference point, especially A Practical Analytic Single Scattering Model for Real Time Rendering. That paper treats fog, mist, and haze as real-time rendering effects in a physically motivated way, rather than just using a simple OpenGL fog blend. For our project, we are using it as the conceptual reference for how atmospheric effects should soften the scene and blend distant geometry into the environment, while still keeping the implementation lightweight enough for our scope. Instead of reproducing the paper’s full analytic single-scattering model, we plan to implement a simpler shader-based fog approximation.</p>
-    <p>At this stage, we added a first separate fog pass to the renderer as an atmospheric layer over the ocean scene. Rather than blending fog directly into the ocean shader, we moved it into its own system so it could behave more like a volume in the scene and sit above the water toward the horizon. This was an important structural improvement because it separated the participating-media effect from the water-surface shading and made the renderer easier to extend.</p>
-  <p>The current fog is still a basic static version. It establishes the overall atmospheric tint and begins softening the background, but it does not yet have the layered motion or rolling behavior needed to look like convincing sea mist. It also does not fully hide the finite boundaries of the ocean patch. The next step is therefore to extend this static fog into a moving multi-layer fog system, with animated density variation and better horizon blending, so that the atmosphere feels more natural and integrated with the ocean surface.</p>
-    <p>We used a stylized (not verbatim copied algorithm; it's specific for our project) single-scattering / airlight approximation with forward scattering, layered over exponential distance fog and procedural noise-shaped fog volumes. It is not full physically-based multi-scattering, but it is much closer to real atmospheric light behavior than simple distance fog. single-scattering style approximation, not full volumetric multiple scattering. It is quick, efficient, and artist friendly for rendering scenes like ours. the fog gets brighter when the camera is looking more into the light direction, which is exactly why the horizon glows.
-</p>
-    
-    <h2>Results</h2>
-    <p>Transitioning from the procedural displacement model to the FFT implementation dramatically improved our surface structure, providing a realistic multiscale distribution that properly layers high-frequency details over broad swells. Our final application seamlessly ties this spectral evolution to a view-dependent Fresnel shader.</p>
+      <figure class="figure">
+        <div class="figure-box">
+          <div class="placeholder-note">
+            <img src="images/early_fft.png" alt="FFT Geometry" />
+          </div>
+        </div>
+        <figcaption class="caption">
+          Early FFT geometry.
+        </figcaption>
+      </figure>
 
-    <div class="media-placeholder media-large">
-      [Insert Final Video: The finished showcase clip/GIF demonstrating the real-time simulation in motion]
-    </div>
+      <h3>Surface Shading and Water Appearance</h3>
+      <p>
+        The second major production track is optical rather than geometric. A moving height
+        field does not automatically look like water. The surface only reads correctly once the
+        changing normal field is connected to a view-dependent reflection model, a controlled
+        body color, and fine-scale detail that enriches the image without replacing the
+        simulation.
+      </p>
 
-    <h3>Limitations and Future Improvements</h3>
-    <p>A primary future improvement we are very interested in is to add more variation to the waves to handle tiling better. Due to the periodic nature of 
-    our simulation, waves are repetitive and often noticeably so. We want to hide and/or break up this repetition. The ocean patch repeats seamlessly
-    in all directions, so the same wave patterns reappear every \(L\) units. By introducing more wave spectras (different amplitudes, frequencies, directions), 
-      random offsets, or additional wave layers, our waves will be less repetitive and more realistic. Adding foam or other unique surface artifacts and characteristics 
-      will also make the ocean water more believable.
-      Additionally, variation can also be introduced in accordance to our night/day presets.</p>
+      <p>
+        At the fragment level, the first step is to compute the reflected view direction from
+        the surface normal. In standard vector form,
+      </p>
+      <div class="equation-line">\[
+        \mathbf{r} = \mathbf{v} - 2(\mathbf{n}\cdot\mathbf{v})\mathbf{n},
+      \]</div>
+      <p>
+        where \(\mathbf{v}\) is the incident view direction and \(\mathbf{n}\) is the surface
+        normal. This reflected direction is mapped into an equirectangular HDR environment
+        texture, providing the reflected sky contribution. We also implemented explicit
+        orientation controls for the HDR environment, including horizontal rotation and pitch,
+        so that the reflected sky and the visible sky pass can be aligned with the camera
+        composition.
+      </p>
 
-    <p>Secondly, our fog implementation is very basic at this point in our scene, and we would've also introduced variation to our fog given more time. 
-      The ideal fog implementation would be a volumetric fog (instead of layers of 2D fog). This is more computationally expensive, needing multiple samples along a ray
-      and other 3D and density characteristics, but is significantly more realistic. In relation to this, we also hope to work on the interpolation between the colors of the fog 
-      and the water. This would replace a sharp cut off with a gradual transition. We also hope to use interpolation to achieve an even more realistic horizon
-      line, where distant waves naturally fade into the background and lose constrast naturally.</p>
+      <p>
+        The water’s reflectivity is modeled with a practical Fresnel approximation. Rather than
+        using a constant reflectance, we evaluate a view-dependent term using Schlick’s formula:
+      </p>
+      <div class="equation-line">\[
+        F(\cos\theta) = F_0 + (1 - F_0)(1 - \cos\theta)^5,
+      \]</div>
+      <p>
+        where \(F_0\) is the base reflectance at normal incidence. This ensures that the surface
+        becomes much more reflective at grazing angles, which is one of the strongest visual
+        cues that the object is water rather than plastic or polished metal.
+      </p>
 
-      
-    <p>Another future feature we were also interested in implementing was to go above and beyond and simulate different types of fluids and liquids.
-    Viscosity impacts how fluids move in waves, and exploring how this quality impacts the way we mathematically and technically approach our simulation
-    would be a very insightful challenge had we had more time. </p>
+      <p>
+        The final water color is assembled from several terms. Broadly, the fragment shader
+        computes an ambient component, a diffuse water-body component, a Fresnel-weighted
+        reflected environment component, and sharp specular and micro-specular highlights. In
+        schematic form, the structure is
+      </p>
+      <div class="equation-line">\[
+        C \approx C_{ambient} + (1 - F)\,C_{body} + F\,C_{env} + C_{specular} + C_{micro}.
+      \]</div>
 
+      <p>
+        In our implementation, the body color is not a constant flat blue. Instead, it is
+        modulated by several broad procedural masks so that the surface exhibits large-scale
+        variation in tone, even when the camera is not looking directly into the reflection
+        direction. This helps the ocean retain readable structure in darker regions and keeps
+        the image from collapsing into a single flat color.
+      </p>
 
-    
+      <p>
+        The final shader also adds multiple layers of procedural detail. We perturb the
+        FFT-derived normal with world-space ripple patterns at several scales, each drifting in
+        a different direction over time. These layers do not replace the large wave geometry
+        produced by the FFT; instead they inject the medium- and high-frequency roughness needed
+        for realistic sparkle. In the final hierarchy of the surface, the FFT supplies the broad
+        swells and the main directional wave structure, additional vertex displacement
+        contributes medium-scale geometric variation, and procedural detail normals provide the
+        finest optical microstructure and the point-like sparkle on the water.
+      </p>
 
-    <p>The progression of our rendering pipeline is visible through these development snapshots:</p>
-    <div class="grid-2">
-      <div class="media-placeholder">
-        [Insert Snapshot 1: Bridge-Stage CPU Prototype Image showing base geometric deformation]
+      <p>
+        This layered approach was especially important at large patch sizes. Without added
+        detail normals and micro-specular response, the ocean became too smooth and fabric-like.
+        With too much detail, however, the repeated patterns became obvious. The final shader
+        balances these layers so that low wave-intensity shots retain a clean cinematic surface
+        while high wave-intensity shots still exhibit enough breakup to avoid reading as a
+        repeated sine-wave sheet.
+      </p>
+
+      <figure class="figure">
+        <div class="figure-box">
+          <img src="images/sunset_wave.jpg" alt="Early flat ocean patch rendering." />
+        </div>
+        <figcaption class="caption">
+          A high intensity wave cycle, demonstrating the variation in surface displacement.
+        </figcaption>
+      </figure>
+
+      <h3>Environment Mapping, HDR Presentation, and Scene Composition</h3>
+      <p>
+        Our proposal emphasized that the renderer should not be presented as a single shader
+        exercise floating over a black void. We therefore treated environment rendering as part
+        of the core final system rather than as a purely decorative addition. Two HDR panoramas
+        are used as environment presets: a sunset sky and a night sky. The renderer draws a
+        separate sky pass and then reuses the same HDR texture as the reflection source for the
+        ocean surface.
+      </p>
+
+      <p>
+        The equirectangular lookup itself is geometric. Given a normalized direction
+        \(\mathbf{d} = (d_x, d_y, d_z)\), the panorama coordinates are computed by
+      </p>
+      <div class="equation-line">\[
+        u = \frac{1}{2\pi}\operatorname{atan2}(-d_z, d_x) + \frac{1}{2} + \Delta u,
+        \qquad
+        v = \frac{1}{\pi}\arccos(d_y),
+      \]</div>
+      <p>
+        with additional rotation and pitch controls used to align the sky with the final shot.
+        This mathematical control over the environment map ended up being just as important as
+        the raw HDR asset itself: an HDR that is misaligned or overexposed can make the water
+        look wrong even if the surface simulation is technically correct.
+      </p>
+
+      <p>
+        The environment stage also motivated several practical rendering decisions. The night
+        scene, for example, needed a colder blue-tinted light story rather than a neutral or
+        black one, so we tuned night exposure, water color, and fog-scattering color in tandem.
+        The sunset scene, by contrast, leaned more heavily on warm horizon light and
+        high-contrast grazing-angle highlights. This led to a more faithful realization of the
+        proposal’s visual direction: the ocean is presented as a scene with lighting,
+        atmosphere, and camera composition, not just as an isolated mesh.
+      </p>
+
+      <figure class="figure">
+        <div class="two-up">
+          <div>
+            <div class="figure-box">
+              <div class="placeholder-note">
+                <img src="images/old_night.png" alt="Previously dully lit scene" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="figure-box">
+              <div class="placeholder-note">
+                <img src="images/final_night.jpg" alt="Heightened blue light" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="caption">
+          Recommended insert: comparison showing why HDR environment lighting and cooler night
+          tinting improved the scene.
+        </figcaption>
+      </figure>
+
+      <h3>Fog and Atmospheric Scattering</h3>
+      <p>
+        The fog stage was treated as a lightweight participating-media approximation rather than
+        as simple fixed-function distance fog. The implementation goal was not a full volumetric
+        multiple-scattering solver, but rather a practical atmospheric model that softens the
+        horizon, integrates the ocean into the environment, and responds to light direction in a
+        convincing way.
+      </p>
+
+      <p>
+        Structurally, the fog is implemented in a separate pass. This is important: by keeping
+        the atmosphere outside the ocean shader, the renderer can treat fog as a scene volume
+        rather than as a tint painted directly onto the water surface. Each fog layer is
+        represented as a shallow box volume placed above the water. Within the fog fragment
+        shader, the density is shaped by a near-to-far distance fade so the effect grows with
+        depth into the scene, by front and side fades so the fog does not read as a hard-edged
+        slab, by a vertical falloff that keeps most of the density close to the waterline, and
+        by layered procedural noise that breaks the volume into softer natural patches instead
+        of a uniform blob.
+      </p>
+
+      <p>
+        In analytical terms, the fog alpha follows the standard transmittance-inspired form
+      </p>
+      <div class="equation-line">\[
+        \alpha = 1 - e^{-\rho},
+      \]</div>
+      <p>
+        where \(\rho\) is an effective density assembled from distance falloff, local volume
+        shaping, and procedural modulation. This provides a stable, efficient way to turn a
+        scalar density field into an opacity response without resorting to expensive volumetric
+        ray marching.
+      </p>
+
+      <p>
+        The lighting term is a stylized single-scattering approximation. We compute a view
+        vector, a light vector, and a forward-scattering response based on their alignment. In
+        simplified form,
+      </p>
+      <div class="equation-line">\[
+        S_{forward} \propto \max(-\mathbf{v}\cdot\mathbf{l}, 0)^p,
+      \]</div>
+      <p>
+        where \(p\) is an exponent controlling how strongly the fog brightens when the camera
+        looks toward the light. This is the step that creates the visible horizon glow. The
+        final fog color then combines a base fog tint, ambient sky contribution, water bounce
+        contribution, and the forward-scattering term. In other words, our atmosphere is not
+        just “blend toward blue with depth”; it is a direction-aware airlight model layered over
+        procedural fog volumes.
+      </p>
+
+      <p>
+        This approach gave us a good compromise between realism and runtime simplicity. The fog
+        does not attempt to model full multi-scattering, shadowed volumetric transport, or dense
+        three-dimensional fluid motion. Instead, it gives the scene a mathematically
+        interpretable atmospheric layer that is cheap enough to run in real time and
+        artistically flexible enough to support both sunset and night presets. It also directly
+        matches one of the proposal’s recurring visual goals: a softened distant horizon rather
+        than a hard cutoff where the ocean mesh simply ends.
+      </p>
+
+      <h3>Runtime Controls, Debugging, and Scene Tuning</h3>
+      <p>
+        A final piece of the technical approach was runtime control. The proposal emphasized
+        that the renderer should be interactively tunable, and our final system does expose
+        several important controls in practice: wave activity, HDR rotation, HDR pitch, and
+        environment exposure. These controls mattered because the ocean’s appearance was
+        sensitive not only to the underlying simulation but also to framing, sky alignment, and
+        lighting balance. In this sense the control layer was not cosmetic; it was essential to
+        debugging and presentation.
+      </p>
+
+      <p>
+        During development, we repeatedly used these controls to diagnose problems that were not
+        obvious from the code alone: repeated wave structure at large scales, misaligned HDR
+        horizons, too-dark night lighting, and fog layers that sat too far back from the water.
+        The final report therefore follows the same logic as the proposal: geometry, optics,
+        atmosphere, and presentation must be treated as one integrated renderer rather than as
+        separate disconnected effects.
+      </p>
+
+      <h3>Problems Encountered and Lessons Learned</h3>
+      <p>
+        Our first major obstacle was computational cost. The earliest bridge-stage version
+        directly accumulated many wave contributions on the CPU and updated the mesh each frame.
+        That approach was useful for validating the render path but far too slow for a
+        convincing interactive ocean. Moving to the FFT pipeline was therefore not just an
+        optimization; it was the step that made the full project feasible.
+      </p>
+
+      <figure class="figure web-only">
+        <div class="two-up">
+          <figure class="figure">
+            <div class="figure-box media-switch">
+              <video
+                class="screen-video"
+                controls
+                muted
+                playsinline
+                preload="metadata"
+                poster="images/spectral_sum.jpg"
+                src="clips/spectral_sum.mp4">
+              </video>
+
+              <img
+                class="print-thumb"
+                src="images/spectral_sum.jpg"
+                alt="CPU-computed bridge-stage update thumbnail." />
+            </div>
+            <figcaption class="caption">
+              CPU-computed bridge-stage update.
+            </figcaption>
+          </figure>
+
+          <figure class="figure">
+            <div class="figure-box media-switch">
+              <video
+                class="screen-video"
+                controls
+                muted
+                playsinline
+                preload="metadata"
+                poster="images/FFT_application.jpg"
+                src="clips/FFT_application.mp4">
+              </video>
+
+              <img
+                class="print-thumb"
+                src="images/FFT_application.jpg"
+                alt="FFT-based update thumbnail." />
+            </div>
+            <figcaption class="caption">
+              FFT-based update after the spectral reconstruction pipeline was integrated.
+            </figcaption>
+          </figure>
+        </div>
+        <figcaption class="caption">
+          A comparison between the slow CPU accumulation stage and the later FFT-based update.
+        </figcaption>
+      </figure>
+
+      <p>
+        A second obstacle was scale. Small ocean patches were visually workable in a technical
+        sense, but they looked wrong: the wave field repeated too aggressively, the horizon
+        ended too abruptly, and the patch boundaries entered the shot. Enlarging the visible
+        ocean patch solved the framing problem but initially caused the wavelengths to inflate
+        as well. Separating visible patch size from wave-tile size and then layering transformed
+        samples of the spectral field was the solution that made the large final patch possible.
+      </p>
+
+      <p>
+        The third recurring lesson was that believable water is always a coupled
+        geometry-and-optics problem. The simulation alone was not enough, and the shader alone
+        was not enough. The system only began to look convincing once the surface normal field,
+        reflection response, environment map, and atmospheric depth all reinforced the same wave
+        structure.
+      </p>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="Results" class="content">
+      <h2>Results</h2>
+
+      <p>
+        The final renderer successfully hits the main target described in the proposal: a
+        real-time open-ocean surface whose appearance is driven by both structured wave motion
+        and view-dependent optical response. The transition from a bridge-stage CPU prototype to
+        a spectral FFT pipeline gave the ocean much stronger large-scale organization, while the
+        final shader stack added the view-dependent reflections, micro-detail, and atmosphere
+        needed to make the surface read as water.
+      </p>
+
+      <p>
+        In practical terms, the strongest results occur when the renderer is allowed to use a
+        broad ocean patch, moderate wave activity, environment reflection, and horizon fog
+        together. Low-to-medium wave activity settings create the cleanest cinematic sunset
+        shots, while higher wave activity demonstrates the multiscale structure of the
+        simulation more aggressively. The night preset benefits from a cooler blue lighting
+        treatment, which makes the water’s reflections and fog-scattering response feel more
+        coherent.
+      </p>
+<h3>Limitations and Future Improvements</h3>
+      <p>
+        The largest remaining limitation is repetition. Because the ocean is still built from a
+        periodic spectral tile, repeated structure can become visible at high wave-activity
+        settings. The current layered sampling and procedural breakup reduce this significantly,
+        but the most principled future step would be to move toward a multi-band or cascaded
+        spectral system in which large swells, medium waves, and high-frequency ripples are
+        generated from separate bands rather than from one repeated field.
+      </p>
+
+      <p>
+        A second natural improvement would be foam and whitecap generation. The current project
+        models wave structure and optical response well, but energetic water would read even
+        more convincingly if crest regions produced foam masks derived from slope, curvature, or
+        a fold diagnostic such as a displacement Jacobian. That would also give the simulation
+        another physically interpretable signal rather than a purely decorative overlay.
+      </p>
+
+      <p>
+        Third, the atmospheric system could be extended from the current stylized
+        single-scattering model toward a denser volumetric fog treatment. This would be more
+        expensive, but it would support stronger depth integration, smoother water-to-air
+        transitions at the horizon, and more physically plausible night lighting.
+      </p>
+
+      <p>
+        Finally, the environment and reflection pipeline could be improved with better filtered
+        HDR sampling, roughness-aware mipmapped reflection, and more specialized day/night
+        environment assets. Those upgrades would matter especially at night, where the scene is
+        most sensitive to how the environment map, water reflection, and atmosphere combine.
+      </p>
+
+      <p class="section-intro">The progression of the rendering pipeline is visible through these development snapshots:</p>
+      <div class="threecol milestone-media">
+        <figure class="figure">
+          <div class="figure-box">
+            <div class="placeholder-note">
+              <img src="images/early_ocean.png" alt="Early simple render." />
+            </div>
+          </div>
+          <figcaption class="caption">
+            An early stage of the CPU summed prototype.
+          </figcaption>
+        </figure>
+
+        <figure class="figure">
+          <div class="figure-box">
+            <div class="placeholder-note">
+              <img src="images/intermediate_step.png" alt="An early fft with the hdr backdrop" />
+            </div>
+          </div>
+          <figcaption class="caption">
+            An early unscaled implementation of FFT with an HDRI environmental texture, but low patch size.
+          </figcaption>
+        </figure>
+
+        <figure class="figure">
+          <div class="figure-box">
+            <div class="placeholder-note">
+              <img src="images/sunset_fog.jpg" alt="Expansive ocean with fog" />
+            </div>
+          </div>
+          <figcaption class="caption">
+            An expansive scaled ocean render with an animated fog enhancement.
+          </figcaption>
+        </figure>
       </div>
-      <div class="media-placeholder">
-        [Insert Snapshot 2: Final FFT Multiscale Shaded Water Image showing structural motion and optics]
-      </div>
-    </div>
 
-    <h2>References</h2>
-    <ul>
-      <li>Jerry Tessendorf. <em>Simulating Ocean Water.</em> SIGGRAPH course notes (2004).</li>
-      <li>OpenGL, GLFW, GLAD, and GLM documentation used during renderer and application development.</li>
-      <li>FFTW (Fastest Fourier Transform in the West) Library Documentation.</li>
-      <li>Poly Haven (HDR pure sky environment maps for sky reflection assets).</li>
-    </ul>
+      <div class="divider"></div>
+    </section>
 
-    <h2>Team Contributions</h2>
-    <ul>
-      <li><strong>Ellie Ghazaleh:</strong> [placeholder]</li>
-      <li><strong>Johanna Liu:</strong> [placeholder]</li>
-      <li><strong>Ece Eris:</strong> Writeups and research on Tessendorf's simulation methods such as Fourier Transforms and Fresnel Reflectivity.</li>
-      <li><strong>Umesh Gopi:</strong> [placeholder]</li>
-    </ul>
+
+    <section id="FinalProjectVideo" class="content">
+      <h2>Final Project Video</h2>
+
+      <figure class="figure hero-figure web-only">
+        <div class="figure-box media-switch">
+          <video
+            class="screen-video"
+            controls
+            muted
+            playsinline
+            preload="metadata"
+            poster="images/final_image.jpg"
+            src="clips/final_video.mp4">
+          </video>
+
+          <img
+            class="print-thumb"
+            src="images/final_image.jpg"
+            alt="Final project video thumbnail." />
+        </div>
+        <figcaption class="caption">
+          Real-Time Spectral Ocean Surface Simulation and Rendering
+        </figcaption>
+      </figure>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="References" class="content">
+      <h2>References</h2>
+      <p>[1] Jerry Tessendorf. <em>Simulating Ocean Water.</em> SIGGRAPH course notes.</p>
+      <p>[2] Toshiya Hachisuka and colleagues. <em>A Practical Analytic Single Scattering Model for Real Time Rendering.</em></p>
+      <p>[3] OpenGL, GLFW, GLAD, and GLM documentation used during renderer and application development.</p>
+      <p>[4] Poly Haven HDR environment maps used as sky-lighting and reflection assets.</p>
+      <p>[5] The project proposal itself served as the organizational target for the final system, especially its division among geometry, shading, environment, and presentation planning.</p>
+
+      <div class="divider"></div>
+    </section>
+
+    <section id="TeamContributions" class="content">
+      <h2>Team Contributions</h2>
+      <p><span class="meta-label">Ellie Ghazaleh:</span> Geometry, shader, environmental aestheic including lighting, HDRI and fog.</p>
+      <p><span class="meta-label">Johanna Liu:</span> Research, debugging, algorithm improvement and efficiency.</p>
+      <p><span class="meta-label">Ece Eris:</span> Writeups and research on Tessendorf’s simulation methods, Fourier-domain ocean formulation, and water optics.</p>
+      <p><span class="meta-label">Umesh Gopi:</span> Prototyping, geometry, shader, advanced shader enhancement.</p>
+
+      <div class="divider"></div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="footer-inner">Tidal Weave — CS 184 Final Report</div>
+  </footer>
 </body>
 </html>
