@@ -569,3 +569,47 @@ p {
     display: none !important;
   }
 }
+
+@media print {
+  .video-meta,
+  #FinalProjectVideo {
+    display: none !important;
+  }
+
+  #Abstract .hero-figure .figure-box {
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+
+  #Abstract .hero-figure .figure-box img {
+    display: block !important;
+    width: 100% !important;
+    height: 1.9in !important;
+    max-height: none !important;
+    object-fit: cover !important;
+  }
+
+  .night-compare .two-up {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    align-items: start !important;
+  }
+
+  .night-compare .placeholder-note {
+    padding: 0 !important;
+  }
+
+  .night-compare .figure-box {
+    padding: 4px !important;
+    min-height: 0 !important;
+  }
+
+  .night-compare img {
+    display: block !important;
+    width: 100% !important;
+    height: 1.55in !important;
+    max-height: none !important;
+    object-fit: cover !important;
+  }
+}
