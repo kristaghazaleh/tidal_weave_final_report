@@ -571,9 +571,22 @@ p {
 }
 
 @media print {
-  .video-meta,
   #FinalProjectVideo {
     display: none !important;
+  }
+
+  .milestone-meta {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+
+  .milestone-meta a,
+  .milestone-meta .text-link {
+    color: var(--ink) !important;
+    border-bottom: 0 !important;
+    text-decoration: underline !important;
+    word-break: break-word !important;
   }
 
   #Abstract .hero-figure .figure-box {
