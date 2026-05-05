@@ -269,16 +269,16 @@
       medium-scale geometric detail, and the normal mapping handles the finest visual texture and light interaction.</p>
 
     <h4>Fog</h4>
-      <p>
-        note: ellie's section on airlight forward single scattering for fog. ellie pls add to this <3
-       </p>
     <p>In rendering, fog is an approximation of volumetric scattering, simulating interactions between light and air. We are sampling a mathematical density field,
       and due to this, a very common graphics artifact of the attempt to simulate fog is a thick, unrealistic 'blob' of fog. This stems from both depth
-    distribution issues and low resolution sampling, where many pixels end up with the same fog values, resulting in a uniform and unrealistic representation of fog. The solution to this issue
-    is a technique called airlight forward single scattering, utilizing layers to our advantage.</p>
-    
+    distribution issues and low resolution sampling, where many pixels end up with the same fog values, resulting in a uniform and unrealistic representation of fog. The
+    following details how we implemented fog and fixed this issue.</p>
 
-    
+    <p>For atmospheric depth, we used participating-media rendering as the main reference point, especially A Practical Analytic Single Scattering Model for Real Time Rendering. That paper treats fog, mist, and haze as real-time rendering effects in a physically motivated way, rather than just using a simple OpenGL fog blend. For our project, we are using it as the conceptual reference for how atmospheric effects should soften the scene and blend distant geometry into the environment, while still keeping the implementation lightweight enough for our scope. Instead of reproducing the paper’s full analytic single-scattering model, we plan to implement a simpler shader-based fog approximation.</p>
+    <p>At this stage, we added a first separate fog pass to the renderer as an atmospheric layer over the ocean scene. Rather than blending fog directly into the ocean shader, we moved it into its own system so it could behave more like a volume in the scene and sit above the water toward the horizon. This was an important structural improvement because it separated the participating-media effect from the water-surface shading and made the renderer easier to extend.</p>
+  <p>The current fog is still a basic static version. It establishes the overall atmospheric tint and begins softening the background, but it does not yet have the layered motion or rolling behavior needed to look like convincing sea mist. It also does not fully hide the finite boundaries of the ocean patch. The next step is therefore to extend this static fog into a moving multi-layer fog system, with animated density variation and better horizon blending, so that the atmosphere feels more natural and integrated with the ocean surface.</p>
+    <p>We used a stylized (not verbatim copied algorithm; it's specific for our project) single-scattering / airlight approximation with forward scattering, layered over exponential distance fog and procedural noise-shaped fog volumes. It is not full physically-based multi-scattering, but it is much closer to real atmospheric light behavior than simple distance fog. single-scattering style approximation, not full volumetric multiple scattering. It is quick, efficient, and artist friendly for rendering scenes like ours. the fog gets brighter when the camera is looking more into the light direction, which is exactly why the horizon glows.
+</p>
     
     <h2>Results</h2>
     <p>Transitioning from the procedural displacement model to the FFT implementation dramatically improved our surface structure, providing a realistic multiscale distribution that properly layers high-frequency details over broad swells. Our final application seamlessly ties this spectral evolution to a view-dependent Fresnel shader.</p>
