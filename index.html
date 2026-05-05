@@ -241,9 +241,18 @@
       and using HDRs that are not toned just black to our advantage. For example, night time waves were more realistic with blue light (instead of black), so switching to a bluer toned HDR and making the lighting blue helped
       the simulation look more realistic.</p>
 
-    <div class="media-placeholder">
+
+    <figure class="media-row">
+  <video src="fog_night.mp4" controls width = "500"></video>
+  <img src="night_1.png" alt="night time render">
+
+  <figcaption>
+    Black vs. Blue lighting and background 
+  </figcaption>
+</figure>
+    <!-- <div class="media-placeholder">
       [compare image of the starry night with our new nighttime]
-    </div>
+    </div> -->
 
       <p>We extended the FFT-based ocean renderer by adding HDR environment rendering and reflection support. We introduced two environment presets, 
         a sunset sky and a night sky, loaded from HDR panorama files stored in the project’s HDR folder. The renderer now loads the Radiance HDR files into 
